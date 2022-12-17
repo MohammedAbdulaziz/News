@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:news/pages/newsPage.dart';
-
-import 'model/article_model.dart';
+import 'package:news/model/article_model.dart';
 
 Widget NewsCard(ArticleModel article, BuildContext context) {
   return Padding(
