@@ -35,6 +35,7 @@ class _HomePageState extends State<HomePage> {
   final _egyptNewsFuture = HomePage()._egyptNewsRepo.fetchEgyptNews();
   List<ArticleModel> _articleModelList = [];
   List<ArticleModel> _articleModelEgyptList = [];
+  var itemCount = 0;
 
   @override
   void initState() {
@@ -114,26 +115,6 @@ class _HomePageState extends State<HomePage> {
             },
           ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: imgList.asMap().entries.map((entry) {
-            return GestureDetector(
-              onTap: () => _controller.animateToPage(entry.key),
-              child: Container(
-                width: 8.0,
-                height: 8.0,
-                margin:
-                    const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
-                decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: (Theme.of(context).brightness == Brightness.dark
-                            ? Theme.of(context).colorScheme.background
-                            : Theme.of(context).colorScheme.primary)
-                        .withOpacity(_current == entry.key ? 0.9 : 0.4)),
-              ),
-            );
-          }).toList(),
-        ),
         const Padding(
           padding: EdgeInsets.only(top: 20, left: 20),
           child: Align(
@@ -146,18 +127,61 @@ class _HomePageState extends State<HomePage> {
         const SizedBox(
           height: 20,
         ),
-        _articleModelList == null
-            ? const Center(
-                child: CircularProgressIndicator(),
-              )
-            : Expanded(
-                child: ListView.builder(
-                  itemCount: _articleModelList.length,
-                  itemBuilder: (context, index) {
-                    return NewsCard(_articleModelList[index], context);
+        FutureBuilder<List<ArticleModel>>(
+            future: _newsFuture,
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text(
+                      "An error occurred: ${snapshot.error.toString() == "Failed host lookup: 'newsapi.org'" ? "No internet connection" : "API error"}",
+                      style: Theme.of(context).textTheme.headline1),
+                );
+              }
+
+              if (!snapshot.hasData) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+              return Expanded(
+                child: NotificationListener<ScrollEndNotification>(
+                  onNotification: (notification) {
+                    if (notification is ScrollEndNotification) {
+                      if (notification.metrics.pixels ==
+                          notification.metrics.maxScrollExtent) {
+                        setState(() {
+                          if (_articleModelList.length > itemCount) {
+                            itemCount += 10;
+                          }
+                        });
+                      }
+                    }
+                    return false;
                   },
+                  child: ListView.separated(
+                    itemCount: itemCount,
+                    separatorBuilder: (context, index) =>
+                        const Divider(height: 0),
+                    itemBuilder: (context, index) {
+                      if (index == itemCount) {
+                        if (itemCount < _articleModelList.length) {
+                          // Return the progress indicator if we are still loading new items
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        } else {
+                          // Return the "No more news" message if we have reached the end of the list
+                          return const Center(
+                            child: Text("No more news"),
+                          );
+                        }
+                      }
+                      return NewsCard(_articleModelList[index], context);
+                    },
+                  ),
                 ),
-              ),
+              );
+            }),
         Divider(
           height: 50,
           color: Colors.grey[200],

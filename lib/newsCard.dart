@@ -72,6 +72,12 @@ Widget NewsCard(ArticleModel article, BuildContext context) {
                 child: Image.network(
                   article.urlToImage ??
                       "https://media.istockphoto.com/id/1390033645/photo/world-news-background-which-can-be-used-for-broadcast-news.jpg?b=1&s=170667a&w=0&k=20&c=glqFWZtWU4Zqyxd8CRu5_Or81zqwe7cyhturXaIFEOA=",
+                  errorBuilder: (context, error, stackTrace) => Image.network(
+                    "https://media.istockphoto.com/id/1390033645/photo/world-news-background-which-can-be-used-for-broadcast-news.jpg?b=1&s=170667a&w=0&k=20&c=glqFWZtWU4Zqyxd8CRu5_Or81zqwe7cyhturXaIFEOA=",
+                    width: 100,
+                    height: 100,
+                    fit: BoxFit.cover,
+                  ),
                   width: 100,
                   height: 100,
                   fit: BoxFit.cover,
