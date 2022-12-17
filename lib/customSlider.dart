@@ -1,28 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:news/model/article_model.dart';
+import 'package:news/newsCard.dart';
 import 'package:news/pages/newsPage.dart';
 
 class CustomSlider extends StatelessWidget {
-  final String title;
-  final String urlToImage;
-  final String publishedAt;
+  final ArticleModel article;
 
-  const CustomSlider({
-    Key? key,
-    required this.title,
-    required this.urlToImage,
-    required this.publishedAt,
-  }) : super(key: key);
+  const CustomSlider({Key? key, required this.article}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-        child: InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => NewsPage()),
-        );
-      },
       child: Container(
         margin: const EdgeInsets.all(5.0),
         child: ClipRRect(
@@ -30,10 +18,17 @@ class CustomSlider extends StatelessWidget {
             child: Stack(
               children: <Widget>[
                 Image.network(
-                  urlToImage,
-                  fit: BoxFit.cover,
-                  width: 1000.0,
+                  article.urlToImage ??
+                      "https://media.istockphoto.com/id/1390033645/photo/world-news-background-which-can-be-used-for-broadcast-news.jpg?b=1&s=170667a&w=0&k=20&c=glqFWZtWU4Zqyxd8CRu5_Or81zqwe7cyhturXaIFEOA=",
+                  errorBuilder: (context, error, stackTrace) => Image.network(
+                    "https://media.istockphoto.com/id/1390033645/photo/world-news-background-which-can-be-used-for-broadcast-news.jpg?b=1&s=170667a&w=0&k=20&c=glqFWZtWU4Zqyxd8CRu5_Or81zqwe7cyhturXaIFEOA=",
+                    width: 1000,
+                    height: 250,
+                    fit: BoxFit.cover,
+                  ),
+                  width: 1000,
                   height: 250,
+                  fit: BoxFit.cover,
                 ),
                 Positioned(
                   bottom: 0.0,
@@ -53,7 +48,7 @@ class CustomSlider extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         vertical: 20.0, horizontal: 20.0),
                     child: Text(
-                      title,
+                      article.title!,
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.75),
                         fontSize: 20.0,
@@ -68,7 +63,7 @@ class CustomSlider extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         vertical: 20.0, horizontal: 20.0),
                     child: Text(
-                      publishedAt,
+                      getTimeAgo(article.publishedAt),
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.75),
                         fontSize: 14.0,
@@ -79,6 +74,6 @@ class CustomSlider extends StatelessWidget {
               ],
             )),
       ),
-    ));
+    );
   }
 }

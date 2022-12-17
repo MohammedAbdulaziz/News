@@ -6,9 +6,9 @@ import 'package:news/model/article_model.dart';
 
 class NewsRepo {
   final endPointUrl1 =
-      "https://newsapi.org/v2/everything?sources=bbc-news&apiKey=996d3b9978704683a3e411713be12dee";
+      "https://newsapi.org/v2/everything?sources=bbc-news&apiKey=ed33b5facac3452da9c2e416b19c44d8";
   final endPointUrl2 =
-      "https://newsapi.org/v2/everything?sources=the-next-web&apiKey=996d3b9978704683a3e411713be12dee";
+      "https://newsapi.org/v2/everything?sources=the-next-web&apiKey=ed33b5facac3452da9c2e416b19c44d8";
 
   Future<List<ArticleModel>> fetchNews() async {
     // Make HTTP request to first endpoint

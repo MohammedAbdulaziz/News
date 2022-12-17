@@ -35,7 +35,7 @@ class _HomePageState extends State<HomePage> {
   final _egyptNewsFuture = HomePage()._egyptNewsRepo.fetchEgyptNews();
   List<ArticleModel> _articleModelList = [];
   List<ArticleModel> _articleModelEgyptList = [];
-  var itemCount = 0;
+  var itemCount = 10;
 
   @override
   void initState() {
@@ -67,16 +67,13 @@ class _HomePageState extends State<HomePage> {
           padding: const EdgeInsets.only(bottom: 10.0),
           child: Container(
             color: Theme.of(context).colorScheme.background,
-            child: const Padding(
+            child: Padding(
               padding: EdgeInsets.only(top: 50, bottom: 20, left: 20),
               child: Align(
                 alignment: AlignmentDirectional.centerStart,
                 child: Text('News',
                     textAlign: TextAlign.left,
-                    style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black)),
+                    style: Theme.of(context).textTheme.headline1),
               ),
             ),
           ),
@@ -103,11 +100,17 @@ class _HomePageState extends State<HomePage> {
                         });
                       }),
                   items: _articleModelEgyptList.map((article) {
-                    return CustomSlider(
-                      title: article.title!,
-                      urlToImage: article.urlToImage ??
-                          "https://media.istockphoto.com/id/1390033645/photo/world-news-background-which-can-be-used-for-broadcast-news.jpg?b=1&s=170667a&w=0&k=20&c=glqFWZtWU4Zqyxd8CRu5_Or81zqwe7cyhturXaIFEOA=",
-                      publishedAt: getTimeAgo(article.publishedAt!),
+                    return InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => NewsPage(article)),
+                        );
+                      },
+                      child: CustomSlider(
+                        article: article,
+                      ),
                     );
                   }).toList(),
                 );
@@ -115,13 +118,13 @@ class _HomePageState extends State<HomePage> {
             },
           ),
         ),
-        const Padding(
+        Padding(
           padding: EdgeInsets.only(top: 20, left: 20),
           child: Align(
             alignment: AlignmentDirectional.centerStart,
             child: Text('Latest news',
                 textAlign: TextAlign.left,
-                style: TextStyle(fontSize: 30, color: Colors.black)),
+                style: Theme.of(context).textTheme.headline5),
           ),
         ),
         const SizedBox(
@@ -171,12 +174,22 @@ class _HomePageState extends State<HomePage> {
                           );
                         } else {
                           // Return the "No more news" message if we have reached the end of the list
-                          return const Center(
-                            child: Text("No more news"),
+                          return Center(
+                            child: Text("No more news",
+                                style: Theme.of(context).textTheme.headline4),
                           );
                         }
                       }
-                      return NewsCard(_articleModelList[index], context);
+                      return InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      NewsPage(_articleModelList[index])),
+                            );
+                          },
+                          child: NewsCard(_articleModelList[index], context));
                     },
                   ),
                 ),

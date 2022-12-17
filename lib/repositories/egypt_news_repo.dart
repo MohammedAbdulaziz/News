@@ -5,7 +5,7 @@ import 'package:news/model/article_model.dart';
 
 class EgyptNewsRepo {
   final endPointUrl =
-      "https://newsapi.org/v2/top-headlines?country=eg&apiKey=996d3b9978704683a3e411713be12dee";
+      "https://newsapi.org/v2/top-headlines?country=eg&apiKey=ed33b5facac3452da9c2e416b19c44d8";
 
   Future<List<ArticleModel>> fetchEgyptNews() async {
     var response = await get(Uri.parse(endPointUrl));
