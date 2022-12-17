@@ -38,7 +38,7 @@ Widget NewsCard(ArticleModel article, BuildContext context) {
                             Padding(
                               padding: const EdgeInsets.only(top: 10),
                               child: Text(
-                                article.title ?? "",
+                                article.title!,
                                 style: Theme.of(context).textTheme.headline2,
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 2,

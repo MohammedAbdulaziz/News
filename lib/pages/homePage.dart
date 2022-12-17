@@ -1,9 +1,11 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:news/customSlider.dart';
 import 'package:news/model/article_model.dart';
 import 'package:news/newsCard.dart';
 import 'package:news/repositories/news_repo.dart';
+import 'package:news/repositories/egypt_news_repo.dart';
 import 'newsPage.dart';
 
 final List<String> imgList = [
@@ -14,47 +16,11 @@ final List<String> imgList = [
   'https://images.unsplash.com/photo-1508704019882-f9cf40e475b4?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=8c6e5e3aba713b17aa1fe71ab4f0ae5b&auto=format&fit=crop&w=1352&q=80',
   'https://images.unsplash.com/photo-1519985176271-adb1088fa94c?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=a0c8d632e977f94e5d312d9893258f59&auto=format&fit=crop&w=1355&q=80'
 ];
-final List<Widget> imageSliders = imgList
-    .map((item) => Container(
-          margin: const EdgeInsets.all(5.0),
-          child: ClipRRect(
-              borderRadius: const BorderRadius.all(Radius.circular(5.0)),
-              child: Stack(
-                children: <Widget>[
-                  Image.network(item, fit: BoxFit.cover, width: 1000.0),
-                  Positioned(
-                    bottom: 0.0,
-                    left: 0.0,
-                    right: 0.0,
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Color.fromARGB(200, 0, 0, 0),
-                            Color.fromARGB(0, 0, 0, 0)
-                          ],
-                          begin: Alignment.bottomCenter,
-                          end: Alignment.topCenter,
-                        ),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10.0, horizontal: 20.0),
-                      child: Text(
-                        'No. ${imgList.indexOf(item)} image',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20.0,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              )),
-        ))
-    .toList();
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  HomePage({Key? key}) : super(key: key);
+  final NewsRepo _newsRepo = NewsRepo();
+  final EgyptNewsRepo _egyptNewsRepo = EgyptNewsRepo();
 
   @override
   State<StatefulWidget> createState() {
@@ -65,19 +31,30 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _current = 0;
   final CarouselController _controller = CarouselController();
-  NewsRepo _newsRepo = NewsRepo();
+  final _newsFuture = HomePage()._newsRepo.fetchNews();
+  final _egyptNewsFuture = HomePage()._egyptNewsRepo.fetchEgyptNews();
   List<ArticleModel> _articleModelList = [];
+  List<ArticleModel> _articleModelEgyptList = [];
 
   @override
   void initState() {
     super.initState();
     fetchNews();
+    fetchEgyptNews();
   }
 
   fetchNews() async {
-    var articleModelList = await _newsRepo.fetchNews();
+    var articleModelList = await HomePage()._newsRepo.fetchNews();
     setState(() {
       _articleModelList = articleModelList;
+    });
+  }
+
+  fetchEgyptNews() async {
+    var articleModelEgyptList =
+        await HomePage()._egyptNewsRepo.fetchEgyptNews();
+    setState(() {
+      _articleModelEgyptList = articleModelEgyptList;
     });
   }
 
@@ -103,21 +80,39 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
-        CarouselSlider(
-          items: imageSliders,
-          carouselController: _controller,
-          options: CarouselOptions(
-              viewportFraction: 0.9,
-              enlargeFactor: 0.5,
-              autoPlay: true,
-              enlargeCenterPage: true,
-              enlargeStrategy: CenterPageEnlargeStrategy.zoom,
-              aspectRatio: 2.0,
-              onPageChanged: (index, reason) {
-                setState(() {
-                  _current = index;
-                });
-              }),
+        SizedBox(
+          height: MediaQuery.of(context).size.height / 2.5,
+          child: FutureBuilder(
+            future: _egyptNewsFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else {
+                return CarouselSlider(
+                  options: CarouselOptions(
+                      viewportFraction: 0.9,
+                      enlargeFactor: 0.5,
+                      autoPlay: true,
+                      enlargeCenterPage: true,
+                      enlargeStrategy: CenterPageEnlargeStrategy.zoom,
+                      aspectRatio: 2.0,
+                      onPageChanged: (index, reason) {
+                        setState(() {
+                          _current = index;
+                        });
+                      }),
+                  items: _articleModelEgyptList.map((article) {
+                    return CustomSlider(
+                      title: article.title!,
+                      urlToImage: article.urlToImage ??
+                          "https://media.istockphoto.com/id/1390033645/photo/world-news-background-which-can-be-used-for-broadcast-news.jpg?b=1&s=170667a&w=0&k=20&c=glqFWZtWU4Zqyxd8CRu5_Or81zqwe7cyhturXaIFEOA=",
+                      publishedAt: getTimeAgo(article.publishedAt!),
+                    );
+                  }).toList(),
+                );
+              }
+            },
+          ),
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -152,7 +147,7 @@ class _HomePageState extends State<HomePage> {
           height: 20,
         ),
         _articleModelList == null
-            ? Center(
+            ? const Center(
                 child: CircularProgressIndicator(),
               )
             : Expanded(
